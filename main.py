@@ -116,16 +116,16 @@ def scan_and_genstatistics(asn_number, scan_ports):
     output_dir = f"masscan_results/{asn}"
     os.makedirs(output_dir, exist_ok=True)
 
-    for i, cidr in enumerate(cidrs):
-        output_file = os.path.join(output_dir, f"scan_result_{i}.txt")
-        print(f"Scanning {cidr}...")
-        scan_ip_range(cidr, output_file, scan_ports)
-        try:
-            port_counts = parse_masscan_output(output_file)
-            for group, count in port_counts.items():
-                all_port_counts[group] += count
-        except FileNotFoundError:
-            print(f"Scan result file not found for {cidr}. Skipping...")
+    output_file = os.path.join(output_dir, f"scan_result.txt")
+    print(f"Scanning {cidrs[0]}...")
+    cidrs_str = " ".join(cidrs)
+    scan_ip_range(cidrs_str, output_file, scan_ports)
+    try:
+        port_counts = parse_masscan_output(output_file)
+        for group, count in port_counts.items():
+            all_port_counts[group] += count
+    except FileNotFoundError:
+        print(f"Scan result file not found for {cidrs[0]}. Skipping...")
 
     if all_port_counts:
         plot_port_statistics(all_port_counts, asn, scan_ports)
