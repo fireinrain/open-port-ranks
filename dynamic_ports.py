@@ -6,21 +6,22 @@ from matplotlib import pyplot as plt
 import requests
 
 
+# Step 1: 获取 ASN 的 CIDR IP 段
 def get_cidr_ips(asn):
-    # Ensure ASN directory exists
+    # 确保 asn 目录存在
     asn_dir = "asn"
     os.makedirs(asn_dir, exist_ok=True)
 
     file_path = os.path.join(asn_dir, f"{asn}")
 
-    # Check if ASN file exists
+    # 检查是否存在对应的 ASN 文件
     if os.path.exists(file_path):
-        # Read file content if it exists
+        # 如果文件存在，读取文件内容
         with open(file_path, 'r') as file:
             cidrs = json.load(file)
         print(f"CIDR data for ASN {asn} loaded from file.")
     else:
-        # Fetch data from API if file does not exist
+        # 如果文件不存在，请求 API 数据
         url = f'https://api.bgpview.io/asn/{asn}/prefixes'
         headers = {
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -31,7 +32,7 @@ def get_cidr_ips(asn):
         data = response.json()
         cidrs = [prefix['prefix'] for prefix in data['data']['ipv4_prefixes']]
 
-        # Write data to file
+        # 将数据写入文件
         with open(file_path, 'w') as file:
             json.dump(cidrs, file)
         print(f"CIDR data for ASN {asn} fetched from API and saved to file.")
@@ -39,9 +40,11 @@ def get_cidr_ips(asn):
     return cidrs
 
 
+# Step 2: 使用 Nmap 扫描所有 IP 的端口
 def scan_ip_range(cidr, output_file, scan_ports="443"):
+    # masscan 默认输出为二进制格式，我们需要使用 -oL 来输出为列表格式
     cmd = ["masscan", cidr, f"-p{scan_ports}", "--rate=20000", "--wait=5", "-oL", output_file]
-    print(f"Executing command: {' '.join(cmd)}")
+    print(f"Executing command: {' '.join(cmd)}")  # 打印执行的命令字符串
 
     try:
         result = subprocess.run(cmd, check=True, capture_output=True, text=True)
@@ -54,7 +57,8 @@ def scan_ip_range(cidr, output_file, scan_ports="443"):
         print(f"Standard error: {e.stderr}")
 
 
-def parse_masscan_output(file_path, scan_ports):
+# 步骤 3: 解析 Nmap 输出并统计端口
+def parse_masscan_output(file_path):
     port_counts = defaultdict(int)
     with open(file_path, 'r') as file:
         for line in file:
@@ -62,37 +66,23 @@ def parse_masscan_output(file_path, scan_ports):
                 parts = line.split()
                 if len(parts) >= 3:
                     port = int(parts[2])
-                    port_counts[port] += 1
-
-    if ',' in scan_ports:
-        groups = {port: count for port, count in port_counts.items()}
-    else:
-        start, end = map(int, scan_ports.split('-'))
-        step = max((end - start + 1) // 66, 1)
-        groups = defaultdict(int)
-        for port in range(start, end + 1):
-            group = (port - start) // step
-            groups[group] += port_counts[port]
-
-    return groups
+                    group = (port - 1) // 1000
+                    port_counts[group] += 1
+    return port_counts
 
 
+# 步骤 4: 绘制条形图
 def plot_port_statistics(port_counts, asn_number, scan_ports):
     result_dir = os.path.join('ports_results', asn_number)
     os.makedirs(result_dir, exist_ok=True)
 
-    if ',' in scan_ports:
-        groups = sorted(port_counts.keys())
-        counts = [port_counts[g] for g in groups]
-    else:
-        step = max((int(scan_ports.split('-')[1]) - int(scan_ports.split('-')[0]) + 1) // 66, 1)
-        groups = list(range(0, 66))
-        counts = [port_counts[g] for g in groups]
+    groups = sorted(port_counts.keys())
+    counts = [port_counts[g] for g in groups]
 
     fig, ax = plt.subplots(figsize=(15, 8))
     bars = ax.bar(groups, counts)
 
-    # Set colors based on counts
+    # 根据数量设置颜色
     max_count = max(counts)
     norm = plt.Normalize(0, max_count)
     for bar, count in zip(bars, counts):
@@ -101,12 +91,24 @@ def plot_port_statistics(port_counts, asn_number, scan_ports):
 
     ax.set_xlabel('Port Range (in thousands)')
     ax.set_ylabel('Number of Open Ports')
-    ax.set_title(f'Distribution of Open Ports for ASN {asn_number}')
-    ax.set_xticks(range(0, len(groups), max(len(groups) // 10, 1)))
-    ax.set_xticklabels([f'{i * step}k-{(i + 1) * step}k' for i in range(0, len(groups), max(len(groups) // 10, 1))])
+    ax.set_title(f'Distribution of Open Ports (ASN {asn_number}, Ports: {scan_ports})')
+
+    # 动态计算 step
+    if ',' in scan_ports:
+        step = 1
+        ax.set_xticks(groups)
+        ax.set_xticklabels([f'{g * step}k' for g in groups])
+    else:
+        port_ranges = scan_ports.split('-')
+        start_port = int(port_ranges[0])
+        end_port = int(port_ranges[1])
+        num_groups = min(66, (end_port - start_port) // 1000 + 1)
+        step = (end_port - start_port + 1) // num_groups
+        ax.set_xticks(range(0, num_groups, max(num_groups // 10, 1)))
+        ax.set_xticklabels([f'{i * step}k-{(i + 1) * step}k' for i in range(0, num_groups, max(num_groups // 10, 1))])
 
     sm = plt.cm.ScalarMappable(cmap='viridis', norm=norm)
-    sm.set_array([])
+    sm.set_array([])  # 这行是必要的，尽管看起来没有意义
     cbar = plt.colorbar(sm, ax=ax, label='Relative Frequency')
 
     plt.tight_layout()
@@ -115,12 +117,13 @@ def plot_port_statistics(port_counts, asn_number, scan_ports):
     # plt.show()
 
 
+# 主函数
 def scan_and_genstatistics(asn_number, scan_ports):
     asn = asn_number
-    scan_ports = scan_ports
     cidrs = get_cidr_ips(asn)
     all_port_counts = defaultdict(int)
 
+    # 创建一个目录来存储扫描结果
     output_dir = f"masscan_results/{asn}"
     os.makedirs(output_dir, exist_ok=True)
 
@@ -129,7 +132,7 @@ def scan_and_genstatistics(asn_number, scan_ports):
     cidrs_str = " ".join(cidrs)
     scan_ip_range(cidrs_str, output_file, scan_ports)
     try:
-        port_counts = parse_masscan_output(output_file, scan_ports)
+        port_counts = parse_masscan_output(output_file)
         for group, count in port_counts.items():
             all_port_counts[group] += count
     except FileNotFoundError:
@@ -148,6 +151,7 @@ def find_files(start_dir, prefix):
             if file.startswith(prefix):
                 abs_path = os.path.join(root, file)
                 matching_files.append(abs_path)
+            print(file)
     return matching_files
 
 
@@ -155,7 +159,7 @@ def refresh_markdown(results_dir: str):
     start_directory = results_dir
     file_prefix = 'port_distribution'
     found_files = find_files(start_directory, file_prefix)
-    print(f"Found statistics images: {found_files}")
+    print(f"发现统计图片: {found_files}")
     markdown = '''
 # open-ports-ranks
 scan asn and detect the open port and make a statics with graph
@@ -173,8 +177,6 @@ scan asn and detect the open port and make a statics with graph
 
 
 def main():
-    # 80,8080,8880,2052,2082,2086,2095,443,2053,2083,2087,2096,8443
-    # 80, 443, 2052, 2053, 2082, 2083, 2086, 2087, 2095, 2096, 8080, 8443, 8880
     scan_and_genstatistics('906', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
     refresh_markdown('ports_results')
 
