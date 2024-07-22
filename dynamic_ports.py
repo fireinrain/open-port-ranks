@@ -134,6 +134,8 @@ def plot_port_statistics(port_counts, asn_number, scan_ports):
 
     plt.tight_layout()
     save_path = os.path.join(result_dir, f'port_distribution_asn{asn_number}_{scan_ports}.png')
+    # 先删除
+    os.remove(save_path)
     plt.savefig(save_path)
     # plt.show()
 
@@ -188,7 +190,7 @@ scan asn and detect the open port and make a statics with graph
 '''
     markdown += '\n'
 
-    images_nodes = [f'### {i.split("/")[-1]}\n![{i.split("/")[-1]}]({i})' for i in found_files]
+    images_nodes = [f'### {i.split("/")[-1].replace("port_distribution_","")}\n![{i.split("/")[-1]}]({i})' for i in found_files]
     images_nodes_str = "\n".join(images_nodes)
 
     markdown += images_nodes_str
