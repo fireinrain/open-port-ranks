@@ -40,13 +40,13 @@ jobs:
 
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install matplotlib
+        python3 -m pip3 install --upgrade pip3
+        pip3 install -r requirements.txt
+        pip3 install matplotlib
 
     - name: Run Paimon Cloud updater
       run: |
-        sudo python main.py
+        sudo python3 main.py
 
     - name: Check for changes
       id: git-status0
