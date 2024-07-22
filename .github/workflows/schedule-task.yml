@@ -1,5 +1,5 @@
 # This workflow will scrap GitHub trending projects daily.
-name: PaimonCloud updater node update
+name: Open-Port-Ranks Task
 
 on:
   push:
