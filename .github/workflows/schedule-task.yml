@@ -47,7 +47,7 @@ jobs:
 
     - name: Run Paimon Cloud updater
       run: |
-        sudo python3 main.py
+        sudo python3 dynamic_ports.py
 
     - name: Check for changes
       id: git-status0
