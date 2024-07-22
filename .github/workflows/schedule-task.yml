@@ -45,7 +45,7 @@ jobs:
 
     - name: Run Paimon Cloud updater
       run: |
-        python main.py
+        sudo python main.py
 
     - name: Check for changes
       id: git-status0
