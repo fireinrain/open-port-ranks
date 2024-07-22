@@ -167,7 +167,7 @@ scan asn and detect the open port and make a statics with graph
 
 
 def main():
-    scan_and_genstatistics('906', '443')
+    scan_and_genstatistics('906', '80')
     refresh_markdown('ports_results')
 
 
