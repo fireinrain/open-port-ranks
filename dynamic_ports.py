@@ -66,8 +66,7 @@ def parse_masscan_output(file_path):
                 parts = line.split()
                 if len(parts) >= 3:
                     port = int(parts[2])
-                    group = (port - 1) // 1000
-                    port_counts[group] += 1
+                    port_counts[port] += 1
     return port_counts
 
 
@@ -76,34 +75,56 @@ def plot_port_statistics(port_counts, asn_number, scan_ports):
     result_dir = os.path.join('ports_results', asn_number)
     os.makedirs(result_dir, exist_ok=True)
 
-    groups = sorted(port_counts.keys())
-    counts = [port_counts[g] for g in groups]
-
-    fig, ax = plt.subplots(figsize=(15, 8))
-    bars = ax.bar(groups, counts)
-
-    # 根据数量设置颜色
-    max_count = max(counts)
-    norm = plt.Normalize(0, max_count)
-    for bar, count in zip(bars, counts):
-        color = plt.cm.viridis(norm(count))
-        bar.set_color(color)
-
-    ax.set_xlabel('Port Range (in thousands)')
-    ax.set_ylabel('Number of Open Ports')
-    ax.set_title(f'Distribution of Open Ports (ASN {asn_number}, Ports: {scan_ports})')
-
-    # 动态计算 step
     if ',' in scan_ports:
-        step = 1
-        ax.set_xticks(groups)
-        ax.set_xticklabels([f'{g * step}k' for g in groups])
+        # 如果端口列表包含逗号，直接使用具体端口
+        ports = sorted(port_counts.keys())
+        counts = [port_counts[p] for p in ports]
+
+        fig, ax = plt.subplots(figsize=(15, 8))
+        bars = ax.bar(ports, counts)
+
+        # 根据数量设置颜色
+        max_count = max(counts)
+        norm = plt.Normalize(0, max_count)
+        for bar, count in zip(bars, counts):
+            color = plt.cm.viridis(norm(count))
+            bar.set_color(color)
+
+        ax.set_xlabel('Port')
+        ax.set_ylabel('Number of Open Ports')
+        ax.set_title(f'Distribution of Open Ports (ASN {asn_number}, Ports: {scan_ports})')
+
+        ax.set_xticks(ports)
+        ax.set_xticklabels(ports, rotation=90)
+
     else:
+        # 如果端口范围包含连字符，使用分组的形式
         port_ranges = scan_ports.split('-')
         start_port = int(port_ranges[0])
         end_port = int(port_ranges[1])
         num_groups = min(66, (end_port - start_port) // 1000 + 1)
         step = (end_port - start_port + 1) // num_groups
+        groups = list(range(num_groups))
+        counts = [0] * num_groups
+        for port, count in port_counts.items():
+            group = (port - start_port) // step
+            if 0 <= group < num_groups:
+                counts[group] += count
+
+        fig, ax = plt.subplots(figsize=(15, 8))
+        bars = ax.bar(groups, counts)
+
+        # 根据数量设置颜色
+        max_count = max(counts)
+        norm = plt.Normalize(0, max_count)
+        for bar, count in zip(bars, counts):
+            color = plt.cm.viridis(norm(count))
+            bar.set_color(color)
+
+        ax.set_xlabel('Port Range (in thousands)')
+        ax.set_ylabel('Number of Open Ports')
+        ax.set_title(f'Distribution of Open Ports (ASN {asn_number}, Ports: {scan_ports})')
+
         ax.set_xticks(range(0, num_groups, max(num_groups // 10, 1)))
         ax.set_xticklabels([f'{i * step}k-{(i + 1) * step}k' for i in range(0, num_groups, max(num_groups // 10, 1))])
 
@@ -133,8 +154,8 @@ def scan_and_genstatistics(asn_number, scan_ports):
     scan_ip_range(cidrs_str, output_file, scan_ports)
     try:
         port_counts = parse_masscan_output(output_file)
-        for group, count in port_counts.items():
-            all_port_counts[group] += count
+        for port, count in port_counts.items():
+            all_port_counts[port] += count
     except FileNotFoundError:
         print(f"Scan result file not found for {cidrs[0]}. Skipping...")
 
@@ -167,7 +188,7 @@ scan asn and detect the open port and make a statics with graph
 '''
     markdown += '\n'
 
-    images_nodes = [f'![{i.split("/")[-1]}]({i})' for i in found_files]
+    images_nodes = [f'### {i.split("/")[-1]}\n![{i.split("/")[-1]}]({i})' for i in found_files]
     images_nodes_str = "\n".join(images_nodes)
 
     markdown += images_nodes_str
