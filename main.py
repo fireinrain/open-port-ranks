@@ -2,8 +2,7 @@ import json
 import os
 import subprocess
 from collections import defaultdict
-
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
 import requests
 
 
