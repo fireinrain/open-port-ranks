@@ -210,21 +210,21 @@ scan asn and detect the open port and make a statics with graph
 
 
 def refresh_git_add_commit():
-    cmd0 = 'git config --global user.name "fireinrain"'
-    cmd00 = 'git config --global user.email "lzyme.dev@gmail.com"'
+    # cmd0 = 'git config --global user.name "fireinrain"'
+    # cmd00 = 'git config --global user.email "lzyme.dev@gmail.com"'
 
     cmd = ["git", "add", "asn/", "masscan_results/", "ports_results/", "README.md"]
     print(f"Executing command: {' '.join(cmd)}")  # 打印执行的命令字符串
 
-    cmd2 = ["git", "commit", "-m", "add gen files"]
-    print(f"Executing command: {' '.join(cmd2)}")  # 打印执行的命令字符串
+    # cmd2 = ["git", "commit", "-m", "add gen files"]
+    # print(f"Executing command: {' '.join(cmd2)}")  # 打印执行的命令字符串
     try:
-        result = subprocess.run(cmd0, check=True, capture_output=True, text=True)
-        print("git config completed successfully.")
-        print(result.stdout)
-        result = subprocess.run(cmd00, check=True, capture_output=True, text=True)
-        print("git config completed successfully.")
-        print(result.stdout)
+        # result = subprocess.run(cmd0, check=True, capture_output=True, text=True)
+        # print("git config completed successfully.")
+        # print(result.stdout)
+        # result = subprocess.run(cmd00, check=True, capture_output=True, text=True)
+        # print("git config completed successfully.")
+        # print(result.stdout)
         result = subprocess.run(cmd, check=True, capture_output=True, text=True)
         print("git add completed successfully.")
         print(result.stdout)
