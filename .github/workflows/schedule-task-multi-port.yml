@@ -51,7 +51,7 @@ jobs:
         echo start commit files
         git config --global user.name "fireinrain"
         git config --global user.email "lzyme.dev@gmail.com"
-        git add asn/ masscan_results/ ports_results/ README.md
+        git add asn/ ports_results/ README.md
         git commit -m "commit gen files"
         git push
 
