@@ -9,6 +9,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+masscan_results/
 build/
 develop-eggs/
 dist/
