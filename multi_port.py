@@ -234,15 +234,15 @@ def refresh_git_add_commit():
         print(f"Standard output: {e.stdout}")
         print(f"Standard error: {e.stderr}")
 
-    try:
-        result = subprocess.run(cmd2, check=True, capture_output=True, text=True)
-        print("git commit completed successfully.")
-        print(result.stdout)
-    except subprocess.CalledProcessError as e:
-        print(f"Error executing masscan: {e}")
-        print(f"Exit status: {e.returncode}")
-        print(f"Standard output: {e.stdout}")
-        print(f"Standard error: {e.stderr}")
+    # try:
+    #     result = subprocess.run(cmd2, check=True, capture_output=True, text=True)
+    #     print("git commit completed successfully.")
+    #     print(result.stdout)
+    # except subprocess.CalledProcessError as e:
+    #     print(f"Error executing masscan: {e}")
+    #     print(f"Exit status: {e.returncode}")
+    #     print(f"Standard output: {e.stdout}")
+    #     print(f"Standard error: {e.stderr}")
 
 
 def main():
