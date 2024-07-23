@@ -23,6 +23,7 @@ def get_cidr_ips(asn):
     else:
         # 如果文件不存在，请求 API 数据
         url = f'https://api.bgpview.io/asn/{asn}/prefixes'
+        # https://api.bgpview.io/asn/as_number/prefixes
         headers = {
             "User-Agent": "curl/7.68.0"
         }

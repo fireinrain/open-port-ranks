@@ -45,7 +45,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Run Paimon Cloud updater
+    - name: Run Run Open port ranks
       run: |
         sudo python3 multi_port.py
 
