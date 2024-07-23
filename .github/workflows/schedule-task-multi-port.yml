@@ -48,6 +48,12 @@ jobs:
     - name: Run Run Open port ranks
       run: |
         sudo python3 multi_port.py
+        echo start commit files
+        git config --global user.name "fireinrain"
+        git config --global user.email "lzyme.dev@gmail.com"
+        git add asn/ masscan_results/ ports_results/ README.md
+        git commit -m "commit gen files"
+        git push
 
     - name: Check for changes
       id: git-status0
