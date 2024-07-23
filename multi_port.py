@@ -96,6 +96,10 @@ def plot_port_statistics(port_counts, asn_number, scan_ports):
         ax.set_xticks(ports)
         ax.set_xticklabels(ports, rotation=90)
 
+        # 添加注释文本
+        text_str = '\n'.join([f'Port {port}: {count}' for port, count in zip(ports, counts)])
+        plt.gcf().text(0.02, 0.02, text_str, fontsize=10)
+
     else:
         # 如果端口范围包含连字符，使用分组的形式
         port_ranges = scan_ports.split('-')
@@ -127,6 +131,10 @@ def plot_port_statistics(port_counts, asn_number, scan_ports):
         ax.set_xticks(range(0, num_groups, max(num_groups // 10, 1)))
         ax.set_xticklabels([f'{i * step}k-{(i + 1) * step}k' for i in range(0, num_groups, max(num_groups // 10, 1))])
 
+        # 添加注释文本
+        text_str = '\n'.join([f'Group {group * step}-{(group + 1) * step}k: {count}' for group, count in zip(groups, counts)])
+        plt.gcf().text(0.02, 0.02, text_str, fontsize=10)
+
     sm = plt.cm.ScalarMappable(cmap='viridis', norm=norm)
     sm.set_array([])  # 这行是必要的，尽管看起来没有意义
     cbar = plt.colorbar(sm, ax=ax, label='Relative Frequency')
@@ -138,6 +146,7 @@ def plot_port_statistics(port_counts, asn_number, scan_ports):
         os.remove(save_path)
     plt.savefig(save_path)
     # plt.show()
+
 
 
 # 主函数
@@ -202,7 +211,8 @@ scan asn and detect the open port and make a statics with graph
 
 def main():
     # scan_and_genstatistics('906', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
-    scan_and_genstatistics('3462', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
+    # scan_and_genstatistics('3462', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
+    scan_and_genstatistics('4609', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
 
     refresh_markdown('ports_results')
 

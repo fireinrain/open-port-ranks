@@ -1,10 +1,10 @@
 # This workflow will scrap GitHub trending projects daily.
-name: Open-Port-Ranks Task
+name: Open-Port-Ranks Task(one-port)
 
-on:
-  push:
-    branches:
-      - master
+#on:
+#  push:
+#    branches:
+#      - master
 #    tags: [ "v[0-9]+.[0-9]+.[0-9]+*" ]
 #  schedule:
     # run on every hour
@@ -47,7 +47,7 @@ jobs:
 
     - name: Run Paimon Cloud updater
       run: |
-        sudo python3 dynamic_ports.py
+        sudo python3 one_port.py
 
     - name: Check for changes
       id: git-status0
