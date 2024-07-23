@@ -5,6 +5,8 @@ from collections import defaultdict
 from matplotlib import pyplot as plt
 import requests
 
+import asn
+
 
 # Step 1: 获取 ASN 的 CIDR IP 段
 def get_cidr_ips(asn):
@@ -138,8 +140,10 @@ def plot_port_statistics(port_counts, asn_number, scan_ports):
     sm.set_array([])  # 这行是必要的，尽管看起来没有意义
     cbar = plt.colorbar(sm, ax=ax, label='Relative Frequency')
 
-    plt.tight_layout(rect=[0, 0.2, 1, 1])  # 留出图表下方的空间用于显示注释文本
-    plt.figtext(0.5, 0.1, text_str, ha="center", fontsize=10, bbox={"facecolor": "white", "alpha": 0.5, "pad": 5})
+    # 将注释文本添加到 Y 轴的左侧
+    plt.tight_layout(rect=[0.15, 0, 1, 1])  # 调整布局，留出左侧的空间
+    plt.figtext(0.02, 0.5, text_str, ha="left", va="center", fontsize=10,
+                bbox={"facecolor": "white", "alpha": 0.5, "pad": 5})
 
     save_path = os.path.join(result_dir, f'port_distribution_asn{asn_number}_{scan_ports}.png')
     # 如果存在旧数据先删除
@@ -199,8 +203,10 @@ scan asn and detect the open port and make a statics with graph
 '''
     markdown += '\n'
 
-    images_nodes = [f'### {i.split("/")[-1].replace("port_distribution_", "")}\n![{i.split("/")[-1]}]({i})' for i in
-                    found_files]
+    images_nodes = [
+        f'## {asn.ASN_Map.get(i.split("_")[2].replace("asn", "UnknownASN"), "")}\n### {i.split("/")[-1].replace("port_distribution_", "")}\n![{i.split("/")[-1]}]({i})'
+        for i in
+        found_files]
     images_nodes_str = "\n".join(images_nodes)
 
     markdown += images_nodes_str
@@ -210,9 +216,9 @@ scan asn and detect the open port and make a statics with graph
 
 
 def main():
-    # scan_and_genstatistics('906', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
-    # scan_and_genstatistics('3462', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
-    # scan_and_genstatistics('4609', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
+    scan_and_genstatistics('906', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
+    scan_and_genstatistics('3462', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
+    scan_and_genstatistics('4609', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
     scan_and_genstatistics('4760', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
 
     refresh_markdown('ports_results')
