@@ -132,7 +132,8 @@ def plot_port_statistics(port_counts, asn_number, scan_ports):
         ax.set_xticklabels([f'{i * step}k-{(i + 1) * step}k' for i in range(0, num_groups, max(num_groups // 10, 1))])
 
         # 添加注释文本
-        text_str = '\n'.join([f'Group {group * step}-{(group + 1) * step}k: {count}' for group, count in zip(groups, counts)])
+        text_str = '\n'.join(
+            [f'Group {group * step}-{(group + 1) * step}k: {count}' for group, count in zip(groups, counts)])
         plt.gcf().text(0.02, 0.02, text_str, fontsize=10)
 
     sm = plt.cm.ScalarMappable(cmap='viridis', norm=norm)
@@ -146,7 +147,6 @@ def plot_port_statistics(port_counts, asn_number, scan_ports):
         os.remove(save_path)
     plt.savefig(save_path)
     # plt.show()
-
 
 
 # 主函数
@@ -209,12 +209,44 @@ scan asn and detect the open port and make a statics with graph
         f.flush()
 
 
+def refresh_git_add_commit():
+    cmd = ["git", "add", "asn/", "masscan_results/", "ports_results/"]
+    print(f"Executing command: {' '.join(cmd)}")  # 打印执行的命令字符串
+
+    cmd2 = ["git", "commit", "-m", "add gen files"]
+    print(f"Executing command: {' '.join(cmd2)}")  # 打印执行的命令字符串
+
+    try:
+        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+        print("git add completed successfully.")
+        print(result.stdout)
+    except subprocess.CalledProcessError as e:
+        print(f"Error executing masscan: {e}")
+        print(f"Exit status: {e.returncode}")
+        print(f"Standard output: {e.stdout}")
+        print(f"Standard error: {e.stderr}")
+
+    try:
+        result = subprocess.run(cmd2, check=True, capture_output=True, text=True)
+        print("git commit completed successfully.")
+        print(result.stdout)
+    except subprocess.CalledProcessError as e:
+        print(f"Error executing masscan: {e}")
+        print(f"Exit status: {e.returncode}")
+        print(f"Standard output: {e.stdout}")
+        print(f"Standard error: {e.stderr}")
+
+
 def main():
     # scan_and_genstatistics('906', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
     # scan_and_genstatistics('3462', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
-    scan_and_genstatistics('4609', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
+    # scan_and_genstatistics('4609', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
+    scan_and_genstatistics('4760', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
+
 
     refresh_markdown('ports_results')
+
+    # commit things
 
 
 if __name__ == "__main__":
