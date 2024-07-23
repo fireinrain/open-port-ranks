@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 import subprocess
 from collections import defaultdict
 from matplotlib import pyplot as plt
@@ -204,7 +205,7 @@ scan asn and detect the open port and make a statics with graph
     markdown += '\n'
 
     images_nodes = [
-        f'## {asn.ASN_Map.get(i.split("_")[2].replace("asn", "UnknownASN"), "")}\n### {i.split("/")[-1].replace("port_distribution_", "")}\n![{i.split("/")[-1]}]({i})'
+        f'## {asn.ASN_Map.get(i.split("_")[2].replace("asn", ""), "UnknownASN")}\n### {i.split("/")[-1].replace("port_distribution_", "")}\n![{i.split("/")[-1]}]({i})'
         for i in
         found_files]
     images_nodes_str = "\n".join(images_nodes)
@@ -215,6 +216,23 @@ scan asn and detect the open port and make a statics with graph
         f.flush()
 
 
+def clear_folder(folder_path):
+    # 确保文件夹存在
+    if os.path.exists(folder_path):
+        # 遍历文件夹中的所有内容
+        for filename in os.listdir(folder_path):
+            file_path = os.path.join(folder_path, filename)
+            try:
+                # 如果是文件夹，则递归删除
+                if os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+                # 如果是文件，则直接删除
+                else:
+                    os.remove(file_path)
+            except Exception as e:
+                print(f'Error: {e}')
+
+
 def main():
     # scan_and_genstatistics('906', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
     # scan_and_genstatistics('3462', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
@@ -222,6 +240,8 @@ def main():
     scan_and_genstatistics('4760', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
 
     refresh_markdown('ports_results')
+    # 删除masscan文件夹下的文件目录
+    clear_folder("masscan_results")
 
 
 if __name__ == "__main__":
