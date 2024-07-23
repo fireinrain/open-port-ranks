@@ -205,7 +205,7 @@ scan asn and detect the open port and make a statics with graph
     markdown += '\n'
 
     images_nodes = [
-        f'## {asn.ASN_Map.get(i.split("_")[2].replace("asn", ""), "UnknownASN")}\n### {i.split("/")[-1].replace("port_distribution_", "")}\n![{i.split("/")[-1]}]({i})'
+        f'## {asn.ASN_Map.get(i.split("/")[-1].split("_")[2].replace("asn", ""), "UnknownASN")}\n### {i.split("/")[-1].replace("port_distribution_", "")}\n![{i.split("/")[-1]}]({i})'
         for i in
         found_files]
     images_nodes_str = "\n".join(images_nodes)
