@@ -219,7 +219,10 @@ def refresh_git_add_commit():
     cmd2 = ["git", "commit", "-m", "add gen files"]
     print(f"Executing command: {' '.join(cmd2)}")  # 打印执行的命令字符串
     try:
-        result = subprocess.run(cmd0+"\\"+cmd00, check=True, capture_output=True, text=True)
+        result = subprocess.run(cmd0, check=True, capture_output=True, text=True)
+        print("git config completed successfully.")
+        print(result.stdout)
+        result = subprocess.run(cmd00, check=True, capture_output=True, text=True)
         print("git config completed successfully.")
         print(result.stdout)
         result = subprocess.run(cmd, check=True, capture_output=True, text=True)
@@ -243,10 +246,10 @@ def refresh_git_add_commit():
 
 
 def main():
-    # scan_and_genstatistics('906', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
+    scan_and_genstatistics('906', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
     # scan_and_genstatistics('3462', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
     # scan_and_genstatistics('4609', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
-    scan_and_genstatistics('4760', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
+    # scan_and_genstatistics('4760', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
 
     refresh_markdown('ports_results')
 
