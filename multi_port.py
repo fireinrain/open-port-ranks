@@ -209,16 +209,13 @@ scan asn and detect the open port and make a statics with graph
         f.flush()
 
 
-
-
 def main():
-    scan_and_genstatistics('906', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
+    # scan_and_genstatistics('906', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
     # scan_and_genstatistics('3462', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
     # scan_and_genstatistics('4609', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
-    # scan_and_genstatistics('4760', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
+    scan_and_genstatistics('4760', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
 
     refresh_markdown('ports_results')
-
 
 
 if __name__ == "__main__":
