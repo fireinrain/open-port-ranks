@@ -74,12 +74,13 @@ def plot_port_statistics(port_counts, asn_number, scan_ports):
     result_dir = os.path.join('ports_results', asn_number)
     os.makedirs(result_dir, exist_ok=True)
 
+    fig, ax = plt.subplots(figsize=(15, 8))
+
     if ',' in scan_ports:
         # 如果端口列表包含逗号，直接使用具体端口
         ports = sorted(port_counts.keys())
         counts = [port_counts[p] for p in ports]
 
-        fig, ax = plt.subplots(figsize=(15, 8))
         bars = ax.bar(ports, counts)
 
         # 根据数量设置颜色
@@ -98,8 +99,6 @@ def plot_port_statistics(port_counts, asn_number, scan_ports):
 
         # 添加注释文本
         text_str = '\n'.join([f'Port {port}: {count}' for port, count in zip(ports, counts)])
-        plt.gcf().text(0.02, 0.02, text_str, fontsize=10)
-
     else:
         # 如果端口范围包含连字符，使用分组的形式
         port_ranges = scan_ports.split('-')
@@ -114,7 +113,6 @@ def plot_port_statistics(port_counts, asn_number, scan_ports):
             if 0 <= group < num_groups:
                 counts[group] += count
 
-        fig, ax = plt.subplots(figsize=(15, 8))
         bars = ax.bar(groups, counts)
 
         # 根据数量设置颜色
@@ -134,13 +132,14 @@ def plot_port_statistics(port_counts, asn_number, scan_ports):
         # 添加注释文本
         text_str = '\n'.join(
             [f'Group {group * step}-{(group + 1) * step}k: {count}' for group, count in zip(groups, counts)])
-        plt.gcf().text(0.02, 0.02, text_str, fontsize=10)
 
     sm = plt.cm.ScalarMappable(cmap='viridis', norm=norm)
     sm.set_array([])  # 这行是必要的，尽管看起来没有意义
     cbar = plt.colorbar(sm, ax=ax, label='Relative Frequency')
 
-    plt.tight_layout()
+    plt.tight_layout(rect=[0, 0.2, 1, 1])  # 留出图表下方的空间用于显示注释文本
+    plt.figtext(0.5, 0.1, text_str, ha="center", fontsize=10, bbox={"facecolor": "white", "alpha": 0.5, "pad": 5})
+
     save_path = os.path.join(result_dir, f'port_distribution_asn{asn_number}_{scan_ports}.png')
     # 如果存在旧数据先删除
     if os.path.exists(save_path):
@@ -210,7 +209,7 @@ scan asn and detect the open port and make a statics with graph
 
 
 def refresh_git_add_commit():
-    cmd = ["git", "add", "asn/", "masscan_results/", "ports_results/"]
+    cmd = ["git", "add", "asn/", "masscan_results/", "ports_results/", "README.md"]
     print(f"Executing command: {' '.join(cmd)}")  # 打印执行的命令字符串
 
     cmd2 = ["git", "commit", "-m", "add gen files"]
@@ -241,12 +240,12 @@ def main():
     # scan_and_genstatistics('906', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
     # scan_and_genstatistics('3462', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
     # scan_and_genstatistics('4609', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
-    scan_and_genstatistics('4760', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
-
+    # scan_and_genstatistics('4760', '80,443,2052,2053,2082,2083,2086,2087,2095,2096,8080,8443,8880')
 
     refresh_markdown('ports_results')
 
     # commit things
+    refresh_git_add_commit()
 
 
 if __name__ == "__main__":
